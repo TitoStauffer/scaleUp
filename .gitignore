@@ -1,0 +1,25 @@
+# IDE
+.idea/
+*.iml
+
+# Maven (backend)
+backend/target/
+.m2/
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite-temp/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Variáveis de ambiente / segredos
+.env
+.env.*
+!.env.example
+
+# SO
+.DS_Store
+Thumbs.db

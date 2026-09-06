@@ -1,0 +1,33 @@
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  color: #172033;
+  background: #f5f7fb;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; min-width: 320px; }
+
+.app-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 2rem;
+}
+
+.hero {
+  width: min(100%, 44rem);
+  padding: clamp(2rem, 8vw, 5rem);
+  border: 1px solid #e3e8f2;
+  border-radius: 1.5rem;
+  background: #fff;
+  box-shadow: 0 1.5rem 4rem rgb(39 55 89 / 10%);
+}
+
+.eyebrow { color: #5267d9; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+h1 { margin: 1rem 0; font-size: clamp(2.4rem, 8vw, 4.5rem); line-height: 1; }
+.intro { color: #58657c; font-size: 1.2rem; line-height: 1.6; }
+button { border: 0; border-radius: .75rem; padding: .85rem 1.2rem; color: #fff; background: #5267d9; cursor: pointer; font: inherit; font-weight: 700; }
+button:hover { background: #4054c2; }
