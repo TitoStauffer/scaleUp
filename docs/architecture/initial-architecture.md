@@ -1,4 +1,4 @@
-# Arquitetura inicial — MVP
+# Arquitetura inicial — ScaleUp (MVP)
 
 **Status:** proposta  
 **Decisão:** monólito modular com React, Spring Boot/Java, PostgreSQL e migrações versionadas.

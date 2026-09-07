@@ -1,4 +1,4 @@
-# PRD — Plataforma de estudos de System Design (MVP)
+# PRD — ScaleUp (Plataforma de estudos de System Design, MVP)
 
 **Status:** proposta inicial  
 **Stack decidida:** React + Spring Boot/Java + PostgreSQL + Maven + npm  

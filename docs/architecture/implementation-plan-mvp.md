@@ -1,4 +1,4 @@
-# Plano de implementação — primeiro vertical slice
+# Plano de implementação — ScaleUp (primeiro vertical slice)
 
 ## Ordem de execução
 
