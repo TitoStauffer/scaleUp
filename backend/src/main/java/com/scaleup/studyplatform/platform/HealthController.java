@@ -1,4 +1,4 @@
-package com.vam.studyplatform.platform;
+package com.scaleup.studyplatform.platform;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-# System Design Study Platform
+# ScaleUp
 
 Plataforma de estudos com Slides, Flashcards e Quiz para preparação em entrevistas de System Design.
 

@@ -1,4 +1,4 @@
-package com.vam.studyplatform.platform;
+package com.scaleup.studyplatform.platform;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -10,11 +10,11 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.vam</groupId>
-    <artifactId>study-platform</artifactId>
+    <groupId>com.scaleup</groupId>
+    <artifactId>scaleup-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>study-platform-backend</name>
-    <description>System Design study platform backend</description>
+    <name>scaleup-backend</name>
+    <description>ScaleUp - backend da plataforma de estudos de System Design</description>
 
     <properties>
         <java.version>21</java.version>

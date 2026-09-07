@@ -1,6 +1,6 @@
 spring:
   application:
-    name: study-platform
+    name: scaleup
 
 management:
   endpoints:

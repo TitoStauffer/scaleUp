@@ -6,10 +6,10 @@ function App() {
   return (
     <main className="app-shell">
       <section className="hero" aria-labelledby="page-title">
-        <p className="eyebrow">System Design Study Platform</p>
+        <p className="eyebrow">ScaleUp</p>
         <h1 id="page-title">Aprenda. Revise. Teste.</h1>
         <p className="intro">
-          Seu laboratório de preparação para entrevistas de System Design.
+          Sua plataforma de preparação para entrevistas de System Design.
         </p>
         <button type="button">Começar estudo</button>
       </section>

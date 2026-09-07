@@ -1,4 +1,4 @@
-package com.vam.studyplatform;
+package com.scaleup.studyplatform;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
