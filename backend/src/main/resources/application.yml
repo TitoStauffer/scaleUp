@@ -1,9 +1,31 @@
 spring:
   application:
     name: scaleup
+  # ATENÇÃO: os defaults abaixo (scaleup/scaleup) são só para desenvolvimento local.
+  # IMPORTANTE: definir DB_USERNAME/DB_PASSWORD via variável de ambiente real antes de
+  # qualquer ambiente que não seja o laptop de dev — nunca depender deste fallback.
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/scaleup}
+    username: ${DB_USERNAME:scaleup}
+    password: ${DB_PASSWORD:scaleup}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
+
+content:
+  # Enquanto não houver processo de revisão humana do conteúdo (rascunhado por IA),
+  # a API de leitura também serve itens com status_revisao = 'rascunho', além de
+  # 'revisado_aprovado'. Decisão do Tito para a fase atual de desenvolvimento.
+  # IMPORTANTE: desligar (definir como false) antes de expor a API a usuários reais
+  # em produção, quando houver conteúdo de fato revisado.
+  incluir-rascunho: ${CONTENT_INCLUIR_RASCUNHO:true}
