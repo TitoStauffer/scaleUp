@@ -8,6 +8,7 @@ import { DomainLayout } from './pages/DomainLayout'
 import { DomainSlidesPage } from './pages/DomainSlidesPage'
 import { FlashcardsPage } from './pages/FlashcardsPage'
 import { QuizPage } from './pages/QuizPage'
+import { ProgressoPage } from './pages/ProgressoPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 
 createRoot(document.getElementById('root')!).render(
@@ -20,6 +21,7 @@ createRoot(document.getElementById('root')!).render(
             <Route index element={<DomainSlidesPage />} />
             <Route path="flashcards" element={<FlashcardsPage />} />
             <Route path="quiz" element={<QuizPage />} />
+            <Route path="progresso" element={<ProgressoPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Route>

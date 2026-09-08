@@ -42,6 +42,32 @@ export async function apiGet<T>(path: string): Promise<T> {
     );
   }
 
+  return handleResponse<T>(response);
+}
+
+/**
+ * POST com corpo JSON opcional. Usado pelos endpoints de escrita de sessão/quiz/flashcard
+ * (módulos Study/Assessment) — a leitura de conteúdo (módulo Content) só usa `apiGet`.
+ */
+export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiError(
+      'Não foi possível conectar à API. Verifique se o servidor está disponível e tente novamente.',
+      0,
+    );
+  }
+
+  return handleResponse<T>(response);
+}
+
+async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     let mensagem = `Erro ao consultar a API (status ${response.status}).`;
     try {
@@ -53,6 +79,10 @@ export async function apiGet<T>(path: string): Promise<T> {
       // corpo de erro ausente ou não é JSON: mantém a mensagem padrão acima.
     }
     throw new ApiError(mensagem, response.status);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   return (await response.json()) as T;

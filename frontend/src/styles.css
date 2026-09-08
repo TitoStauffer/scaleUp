@@ -219,6 +219,64 @@ h1 { margin: 0 0 .5rem; font-size: clamp(1.8rem, 5vw, 2.75rem); line-height: 1.1
   font-size: .95rem;
 }
 .quiz-summary { display: flex; flex-direction: column; gap: 1rem; align-items: flex-start; }
+.quiz-progress-note { color: #58657c; }
+.quiz-submit-error { width: 100%; }
+
+.quiz-confianca { border: 0; padding: 0; margin: 1rem 0; }
+.quiz-confianca legend { font-weight: 600; color: #58657c; margin-bottom: .5rem; padding: 0; }
+.quiz-confianca-options { display: flex; gap: .5rem; }
+.quiz-confianca-option {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .5rem .85rem;
+  border: 1px solid #e3e8f2;
+  border-radius: .75rem;
+  background: #fff;
+  font-weight: 500;
+  cursor: pointer;
+}
+.quiz-confianca-option:has(input:checked) { border-color: #5267d9; background: #eef0fb; }
+
+.quiz-review-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1rem; width: 100%; }
+.quiz-review-item {
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: #fff;
+  border: 1px solid #e3e8f2;
+}
+.quiz-review-item--correta { border-left: 4px solid #2f9e44; }
+.quiz-review-item--errada { border-left: 4px solid #e03131; }
+.quiz-review-enunciado { font-weight: 700; margin-top: 0; }
+.quiz-review-explicacao { color: #58657c; margin-bottom: 0; }
+.quiz-summary-actions { display: flex; gap: 1rem; align-items: center; }
+
+/* Flashcards: autoavaliação */
+.flashcard-autoavaliacao { display: flex; flex-direction: column; gap: .5rem; align-items: flex-start; }
+.flashcard-autoavaliacao-actions { display: flex; gap: .75rem; }
+.flashcard-autoavaliacao-confirmacao { color: #2f9e44; font-weight: 600; margin: 0; }
+
+/* Progresso do domínio */
+.progresso-viewer { display: flex; flex-direction: column; gap: 1.5rem; }
+.progresso-resumo, .progresso-em-avaliacao {
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: #fff;
+  border: 1px solid #e3e8f2;
+}
+.progresso-nivel { font-size: 1.3rem; font-weight: 700; margin: 0 0 .5rem; color: #5267d9; }
+.progresso-geral { margin: 0; color: #58657c; }
+.progresso-componentes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.progresso-componente {
+  display: flex;
+  justify-content: space-between;
+  padding: .85rem 1.25rem;
+  border-radius: .75rem;
+  background: #fff;
+  border: 1px solid #e3e8f2;
+}
+.progresso-componente-label { font-weight: 600; }
+.progresso-componente-valor { color: #58657c; }
 
 @media (max-width: 640px) {
   .slides-layout { grid-template-columns: 1fr; }
