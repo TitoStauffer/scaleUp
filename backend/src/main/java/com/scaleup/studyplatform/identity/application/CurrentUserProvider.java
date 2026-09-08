@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.scaleup.studyplatform.identity.domain.AppUser;
 import com.scaleup.studyplatform.identity.infra.AppUserRepository;
 
 /**
@@ -31,9 +32,13 @@ public class CurrentUserProvider {
 
     @Transactional(readOnly = true)
     public UUID getCurrentUserId() {
+        return getCurrentUser().getId();
+    }
+
+    @Transactional(readOnly = true)
+    public AppUser getCurrentUser() {
         return appUserRepository.findByEmail(EMAIL_USUARIO_LOCAL)
                 .orElseThrow(() -> new IllegalStateException(
-                        "Usuário local (" + EMAIL_USUARIO_LOCAL + ") não encontrado — V24 aplicou?"))
-                .getId();
+                        "Usuário local (" + EMAIL_USUARIO_LOCAL + ") não encontrado — V24 aplicou?"));
     }
 }
