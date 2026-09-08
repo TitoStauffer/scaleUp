@@ -13,6 +13,9 @@ export function DomainListPage() {
         Escolha um domínio para estudar os slides, revisar flashcards e treinar com
         questões de múltipla escolha.
       </p>
+      <p className="page-actions">
+        <Link to="/resultado-geral">Ver resultado geral</Link>
+      </p>
       <RequestState result={result} loadingLabel="Carregando domínios...">
         {(dominios) =>
           dominios.length === 0 ? (

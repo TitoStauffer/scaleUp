@@ -36,6 +36,7 @@ export function DomainLayout() {
         <NavLink to="flashcards">Flashcards</NavLink>
         <NavLink to="quiz">Quiz</NavLink>
         <NavLink to="progresso">Progresso</NavLink>
+        <NavLink to="historico">Histórico</NavLink>
       </nav>
       <Outlet />
     </section>

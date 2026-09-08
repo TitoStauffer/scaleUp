@@ -134,3 +134,33 @@ export interface DomainProgress {
   pontuacaoGeral: number | null;
   nivelAtual: string | null;
 }
+
+/**
+ * Resposta de `GET /api/usuarios/atual`. Permite descobrir o `userId` do único usuário
+ * local do MVP (sem autenticação real) para consumir os endpoints `/usuarios/{userId}/...`.
+ * Espelha `UsuarioAtualDto`.
+ */
+export interface UsuarioAtual {
+  id: string;
+  nome: string;
+  email: string;
+}
+
+/**
+ * `avaliado=false` (com `resultadoGeral=null`) representa o estado explícito "ainda não
+ * avaliado" — nunca um resultado numérico `0`. Espelha `ResultadoGeralDto`.
+ */
+export interface ResultadoGeral {
+  avaliado: boolean;
+  resultadoGeral: number | null;
+  dominiosAvaliados: number;
+}
+
+/** Uma tentativa de quiz concluída. Espelha `HistoricoItemDto`. */
+export interface HistoricoItem {
+  quizAttemptId: string;
+  domainRef: string;
+  pontuacaoObtida: number;
+  iniciadoEm: string;
+  concluidoEm: string;
+}

@@ -278,6 +278,32 @@ h1 { margin: 0 0 .5rem; font-size: clamp(1.8rem, 5vw, 2.75rem); line-height: 1.1
 .progresso-componente-label { font-weight: 600; }
 .progresso-componente-valor { color: #58657c; }
 
+/* Ações da lista de domínios (ex.: link para resultado geral) */
+.page-actions { margin-bottom: 1.5rem; }
+
+/* Resultado geral */
+.resultado-geral-resumo {
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: #fff;
+  border: 1px solid #e3e8f2;
+}
+.resultado-geral-valor { font-size: 2.5rem; font-weight: 800; margin: 0; color: #5267d9; }
+.resultado-geral-detalhe { margin: .5rem 0 0; color: #58657c; }
+
+/* Histórico por domínio */
+.historico-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.historico-item {
+  display: flex;
+  justify-content: space-between;
+  padding: .85rem 1.25rem;
+  border-radius: .75rem;
+  background: #fff;
+  border: 1px solid #e3e8f2;
+}
+.historico-pontuacao { font-weight: 700; color: #5267d9; }
+.historico-data { color: #58657c; }
+
 @media (max-width: 640px) {
   .slides-layout { grid-template-columns: 1fr; }
 }
