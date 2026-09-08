@@ -2,6 +2,9 @@
 .idea/
 *.iml
 
+# Claude Code (estado local da ferramenta)
+.claude/
+
 # Maven (backend)
 backend/target/
 .m2/
