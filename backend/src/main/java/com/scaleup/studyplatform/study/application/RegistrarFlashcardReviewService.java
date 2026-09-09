@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.scaleup.studyplatform.content.domain.Flashcard;
 import com.scaleup.studyplatform.content.infra.FlashcardRepository;
+import com.scaleup.studyplatform.identity.application.CurrentUserProvider;
 import com.scaleup.studyplatform.progress.application.RecalcularDomainProgressService;
 import com.scaleup.studyplatform.shared.RecursoNaoEncontradoException;
 import com.scaleup.studyplatform.study.application.dto.FlashcardReviewDto;
@@ -29,14 +30,16 @@ public class RegistrarFlashcardReviewService {
     private final FlashcardRepository flashcardRepository;
     private final FlashcardReviewRepository flashcardReviewRepository;
     private final RecalcularDomainProgressService recalcularDomainProgressService;
+    private final CurrentUserProvider currentUserProvider;
 
     public RegistrarFlashcardReviewService(StudySessionRepository studySessionRepository,
             FlashcardRepository flashcardRepository, FlashcardReviewRepository flashcardReviewRepository,
-            RecalcularDomainProgressService recalcularDomainProgressService) {
+            RecalcularDomainProgressService recalcularDomainProgressService, CurrentUserProvider currentUserProvider) {
         this.studySessionRepository = studySessionRepository;
         this.flashcardRepository = flashcardRepository;
         this.flashcardReviewRepository = flashcardReviewRepository;
         this.recalcularDomainProgressService = recalcularDomainProgressService;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @Transactional
@@ -47,6 +50,12 @@ public class RegistrarFlashcardReviewService {
 
         StudySession sessao = studySessionRepository.findById(sessaoId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Sessão não encontrada: " + sessaoId));
+
+        // IDOR (achado do QA): sessão de outro usuário responde 404, não 403 — mesmo princípio
+        // anti-enumeração aplicado em IniciarQuizAttemptService/SubmeterQuizAttemptService.
+        if (!sessao.getUserId().equals(currentUserProvider.getCurrentUserId())) {
+            throw new RecursoNaoEncontradoException("Sessão não encontrada: " + sessaoId);
+        }
 
         Flashcard flashcard = flashcardRepository.findById(request.flashcardId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Flashcard não encontrado: " + request.flashcardId()));

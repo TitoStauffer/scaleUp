@@ -21,6 +21,7 @@ import com.scaleup.studyplatform.content.application.dto.AlternativaDto;
 import com.scaleup.studyplatform.content.application.dto.QuestionDto;
 import com.scaleup.studyplatform.content.domain.Question;
 import com.scaleup.studyplatform.content.infra.QuestionRepository;
+import com.scaleup.studyplatform.identity.application.CurrentUserProvider;
 import com.scaleup.studyplatform.shared.EstadoInvalidoException;
 import com.scaleup.studyplatform.shared.RecursoNaoEncontradoException;
 import com.scaleup.studyplatform.study.domain.StatusSessao;
@@ -43,23 +44,31 @@ public class IniciarQuizAttemptService {
     private final QuizAttemptRepository quizAttemptRepository;
     private final QuizAttemptQuestionRepository quizAttemptQuestionRepository;
     private final ContentVisibilidadeConfig visibilidadeConfig;
+    private final CurrentUserProvider currentUserProvider;
 
     public IniciarQuizAttemptService(StudySessionRepository studySessionRepository,
             QuestionRepository questionRepository, AnswerRepository answerRepository,
             QuizAttemptRepository quizAttemptRepository, QuizAttemptQuestionRepository quizAttemptQuestionRepository,
-            ContentVisibilidadeConfig visibilidadeConfig) {
+            ContentVisibilidadeConfig visibilidadeConfig, CurrentUserProvider currentUserProvider) {
         this.studySessionRepository = studySessionRepository;
         this.questionRepository = questionRepository;
         this.answerRepository = answerRepository;
         this.quizAttemptRepository = quizAttemptRepository;
         this.quizAttemptQuestionRepository = quizAttemptQuestionRepository;
         this.visibilidadeConfig = visibilidadeConfig;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @Transactional
     public QuizAttemptDto iniciar(UUID sessaoId) {
         StudySession sessao = studySessionRepository.findById(sessaoId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Sessão não encontrada: " + sessaoId));
+
+        // IDOR (achado do QA): sessão de outro usuário responde 404, não 403 — não revela que
+        // o id existe, mesmo princípio anti-enumeração do ticket de autenticação.
+        if (!sessao.getUserId().equals(currentUserProvider.getCurrentUserId())) {
+            throw new RecursoNaoEncontradoException("Sessão não encontrada: " + sessaoId);
+        }
 
         if (sessao.getStatus() != StatusSessao.EM_ANDAMENTO) {
             throw new EstadoInvalidoException("Sessão " + sessaoId + " não está em andamento (status atual: "

@@ -24,6 +24,7 @@ import com.scaleup.studyplatform.assessment.infra.QuizAttemptRepository;
 import com.scaleup.studyplatform.content.domain.Question;
 import com.scaleup.studyplatform.content.domain.QuestionAlternative;
 import com.scaleup.studyplatform.content.infra.QuestionRepository;
+import com.scaleup.studyplatform.identity.application.CurrentUserProvider;
 import com.scaleup.studyplatform.progress.application.ConsultarProgressoService;
 import com.scaleup.studyplatform.progress.application.RecalcularDomainProgressService;
 import com.scaleup.studyplatform.progress.domain.DomainProgress;
@@ -47,23 +48,35 @@ public class SubmeterQuizAttemptService {
     private final QuestionRepository questionRepository;
     private final StudySessionRepository studySessionRepository;
     private final RecalcularDomainProgressService recalcularDomainProgressService;
+    private final CurrentUserProvider currentUserProvider;
 
     public SubmeterQuizAttemptService(QuizAttemptRepository quizAttemptRepository,
             QuizAttemptQuestionRepository quizAttemptQuestionRepository, AnswerRepository answerRepository,
             QuestionRepository questionRepository, StudySessionRepository studySessionRepository,
-            RecalcularDomainProgressService recalcularDomainProgressService) {
+            RecalcularDomainProgressService recalcularDomainProgressService, CurrentUserProvider currentUserProvider) {
         this.quizAttemptRepository = quizAttemptRepository;
         this.quizAttemptQuestionRepository = quizAttemptQuestionRepository;
         this.answerRepository = answerRepository;
         this.questionRepository = questionRepository;
         this.studySessionRepository = studySessionRepository;
         this.recalcularDomainProgressService = recalcularDomainProgressService;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @Transactional
     public SubmissaoResultadoDto submeter(UUID attemptId, SubmissaoQuizRequest request) {
         QuizAttempt tentativa = quizAttemptRepository.findById(attemptId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Tentativa não encontrada: " + attemptId));
+
+        // IDOR (achado do QA): a posse é resolvida via a sessão dona da tentativa — busca a
+        // sessão já aqui (reaproveitada mais abaixo, não repete a query) e rejeita com 404
+        // antes de validar completude ou tocar em qualquer Answer, para não revelar nem o
+        // estado da tentativa de outro usuário.
+        StudySession sessao = studySessionRepository.findById(tentativa.getStudySessionId())
+                .orElseThrow(() -> new IllegalStateException("Sessão " + tentativa.getStudySessionId() + " não encontrada"));
+        if (!sessao.getUserId().equals(currentUserProvider.getCurrentUserId())) {
+            throw new RecursoNaoEncontradoException("Tentativa não encontrada: " + attemptId);
+        }
 
         if (tentativa.getStatus() != StatusTentativa.EM_ANDAMENTO) {
             throw new EstadoInvalidoException("Tentativa " + attemptId + " não está em andamento (status atual: "
@@ -126,8 +139,6 @@ public class SubmeterQuizAttemptService {
         tentativa.concluir(pontuacaoObtida);
         quizAttemptRepository.save(tentativa);
 
-        StudySession sessao = studySessionRepository.findById(tentativa.getStudySessionId())
-                .orElseThrow(() -> new IllegalStateException("Sessão " + tentativa.getStudySessionId() + " não encontrada"));
         DomainProgress progresso = recalcularDomainProgressService.recalcular(sessao.getUserId(), tentativa.getDomainRef());
 
         return new SubmissaoResultadoDto(tentativa.getId(), acertos, tentativa.getTotalQuestoes(), pontuacaoObtida,

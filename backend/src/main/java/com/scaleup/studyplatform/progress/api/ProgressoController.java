@@ -16,6 +16,7 @@ import com.scaleup.studyplatform.progress.application.ConsultarResultadoGeralSer
 import com.scaleup.studyplatform.progress.application.dto.DomainProgressDto;
 import com.scaleup.studyplatform.progress.application.dto.HistoricoItemDto;
 import com.scaleup.studyplatform.progress.application.dto.ResultadoGeralDto;
+import com.scaleup.studyplatform.shared.RecursoNaoEncontradoException;
 
 /**
  * 3 dos 7 endpoints do ticket (seção 7): progresso por domínio, resultado geral do usuário e
@@ -41,23 +42,37 @@ public class ProgressoController {
 
     /**
      * `GET /dominios/{dominioId}/progresso` não carrega `{userId}` na URL (ao contrário dos
-     * outros dois endpoints deste controller) — o ticket o expõe sob `/dominios/...`, não sob
-     * `/usuarios/...`. Como o MVP assume usuário único/local (sem autenticação real), resolve
-     * o usuário atual do mesmo jeito que os módulos Study/Assessment.
+     * outros dois endpoints deste controller) — o ticket original o expõe sob `/dominios/...`,
+     * não sob `/usuarios/...`. Resolve o usuário autenticado da requisição (JWT) do mesmo
+     * jeito que os módulos Study/Assessment, via {@link CurrentUserProvider}.
      */
     @GetMapping("/dominios/{dominioId}/progresso")
     public DomainProgressDto progresso(@PathVariable UUID dominioId) {
         return consultarProgressoService.consultar(currentUserProvider.getCurrentUserId(), dominioId);
     }
 
+    /**
+     * IDOR (achado do QA): `{userId}` continua na URL por compatibilidade de contrato, mas só
+     * é aceito quando bate com o usuário do JWT — qualquer outro id responde 404, pelo mesmo
+     * princípio anti-enumeração do ticket de autenticação (não revela se o id pertence a
+     * outra conta ou não existe).
+     */
     @GetMapping("/usuarios/{userId}/resultado-geral")
     public ResultadoGeralDto resultadoGeral(@PathVariable UUID userId) {
+        exigirProprioUsuario(userId);
         return consultarResultadoGeralService.consultar(userId);
     }
 
     @GetMapping("/usuarios/{userId}/historico")
     public List<HistoricoItemDto> historico(@PathVariable UUID userId,
             @RequestParam(name = "dominioId", required = false) UUID dominioId) {
+        exigirProprioUsuario(userId);
         return consultarHistoricoService.consultar(userId, dominioId);
+    }
+
+    private void exigirProprioUsuario(UUID userId) {
+        if (!currentUserProvider.getCurrentUserId().equals(userId)) {
+            throw new RecursoNaoEncontradoException("Usuário não encontrado: " + userId);
+        }
     }
 }
