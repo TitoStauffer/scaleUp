@@ -11,6 +11,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import com.scaleup.studyplatform.identity.application.ContaNaoConfirmadaException;
+import com.scaleup.studyplatform.identity.application.CredenciaisInvalidasException;
+import com.scaleup.studyplatform.identity.application.RateLimitExcedidoException;
+import com.scaleup.studyplatform.identity.application.TokenExpiradoException;
+import com.scaleup.studyplatform.identity.application.TokenInvalidoException;
+
 /**
  * Tratamento de erro HTTP comum a todos os módulos (shared, conforme
  * docs/architecture/implementation-plan-backend-infra.md, seção 1).
@@ -50,6 +56,46 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ApiErrorResponse(Instant.now(), 409, "ESTADO_INVALIDO", ex.getMessage(),
+                        request.getRequestURI()));
+    }
+
+    // ---- TICKET-autenticacao.md ----
+
+    @ExceptionHandler(CredenciaisInvalidasException.class)
+    public ResponseEntity<ApiErrorResponse> handleCredenciaisInvalidas(CredenciaisInvalidasException ex,
+            HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiErrorResponse(Instant.now(), 401, "CREDENCIAIS_INVALIDAS", ex.getMessage(),
+                        request.getRequestURI()));
+    }
+
+    @ExceptionHandler(ContaNaoConfirmadaException.class)
+    public ResponseEntity<ApiErrorResponse> handleContaNaoConfirmada(ContaNaoConfirmadaException ex,
+            HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ApiErrorResponse(Instant.now(), 403, "CONTA_NAO_CONFIRMADA", ex.getMessage(),
+                        request.getRequestURI()));
+    }
+
+    @ExceptionHandler(TokenInvalidoException.class)
+    public ResponseEntity<ApiErrorResponse> handleTokenInvalido(TokenInvalidoException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiErrorResponse(Instant.now(), 400, "TOKEN_INVALIDO", ex.getMessage(),
+                        request.getRequestURI()));
+    }
+
+    @ExceptionHandler(TokenExpiradoException.class)
+    public ResponseEntity<ApiErrorResponse> handleTokenExpirado(TokenExpiradoException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiErrorResponse(Instant.now(), 400, "TOKEN_EXPIRADO", ex.getMessage(),
+                        request.getRequestURI()));
+    }
+
+    @ExceptionHandler(RateLimitExcedidoException.class)
+    public ResponseEntity<ApiErrorResponse> handleRateLimitExcedido(RateLimitExcedidoException ex,
+            HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(new ApiErrorResponse(Instant.now(), 429, "RATE_LIMIT_EXCEDIDO", ex.getMessage(),
                         request.getRequestURI()));
     }
 }

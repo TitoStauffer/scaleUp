@@ -51,6 +51,39 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <!-- spring-boot-starter-mail é adicionado agora (TICKET-autenticacao.md, seção 12,
+             OPEN QUESTION-D) para que a troca do mock de envio de e-mail por SMTP real seja só
+             configuração (JavaMailSender) quando a credencial do Google Workspace existir — a
+             implementação ativa por padrão continua sendo o mock (ver identity.application.LogEmailSender). -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+        <!-- JJWT: geração/validação de JWT no login (ticket, seção 7). Escolhido por ser a
+             biblioteca mais usada no ecossistema Java para JWT standalone (não exige todo o
+             framework de OAuth2 Resource Server do Spring Security, que seria overkill para um
+             emissor/validador simples e stateless como este). -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-flyway</artifactId>
         </dependency>
         <!-- Sem isso, Flyway 12 não reconhece Postgres 16+ ("Unsupported Database:
@@ -75,6 +108,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -7,9 +7,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -38,7 +40,8 @@ import com.scaleup.studyplatform.content.application.dto.QuestionDto;
 import com.scaleup.studyplatform.content.domain.Question;
 import com.scaleup.studyplatform.content.domain.QuestionAlternative;
 import com.scaleup.studyplatform.content.infra.QuestionRepository;
-import com.scaleup.studyplatform.identity.application.CurrentUserProvider;
+import com.scaleup.studyplatform.identity.infra.AppUserRepository;
+import com.scaleup.studyplatform.identity.infra.TokenConfirmacaoCadastroRepository;
 import com.scaleup.studyplatform.progress.application.dto.DomainProgressDto;
 import com.scaleup.studyplatform.progress.application.dto.HistoricoItemDto;
 import com.scaleup.studyplatform.progress.application.dto.ResultadoGeralDto;
@@ -46,6 +49,7 @@ import com.scaleup.studyplatform.shared.ApiErrorResponse;
 import com.scaleup.studyplatform.study.application.dto.FlashcardReviewDto;
 import com.scaleup.studyplatform.study.application.dto.RegistrarFlashcardReviewRequest;
 import com.scaleup.studyplatform.study.application.dto.StudySessionDto;
+import com.scaleup.studyplatform.support.AuthTestSupport;
 
 /**
  * Teste de integração ponta a ponta do módulo Assessment/Progress: sobe um Postgres real em
@@ -86,7 +90,26 @@ class AssessmentProgressModuleIntegrationTest {
     private QuestionRepository questionRepository;
 
     @Autowired
-    private CurrentUserProvider currentUserProvider;
+    private AppUserRepository appUserRepository;
+
+    @Autowired
+    private TokenConfirmacaoCadastroRepository tokenRepository;
+
+    // Desde TICKET-autenticacao.md, todas as rotas exigem JWT — cadastra, confirma e loga um
+    // usuário de teste uma única vez por classe (mesmo container/contexto compartilhado entre
+    // os métodos, executados em ordem por MethodOrderer.OrderAnnotation), guardando o id do
+    // usuário para os endpoints `/usuarios/{userId}/...` que ainda recebem o id na URL.
+    private static final AtomicBoolean AUTENTICADO = new AtomicBoolean(false);
+    private static UUID usuarioAutenticadoId;
+
+    @BeforeEach
+    void garantirUsuarioAutenticado() {
+        if (AUTENTICADO.compareAndSet(false, true)) {
+            var autenticacao = AuthTestSupport.cadastrarConfirmarELogar(restTemplate, appUserRepository, tokenRepository);
+            AuthTestSupport.configurarAuthorizationHeaderPadrao(restTemplate, autenticacao.jwt());
+            usuarioAutenticadoId = autenticacao.userId();
+        }
+    }
 
     // Instância própria (não gerenciada pelo Spring), só para leitura de árvore JSON genérica
     // no teste de vazamento de campo sensível (AC-13) — não precisa de módulos de data/hora
@@ -400,13 +423,12 @@ class AssessmentProgressModuleIntegrationTest {
     // ---- helpers ----
 
     /**
-     * Não há endpoint de Identity nem autenticação real (MVP assume usuário único/local) — os
-     * endpoints `/usuarios/{userId}/...` recebem esse id diretamente. O teste reaproveita o
-     * mesmo {@link CurrentUserProvider} usado pela aplicação para resolver o único usuário
-     * local semeado por V24, em vez de duplicar a constante do e-mail fixo aqui.
+     * Os endpoints `/usuarios/{userId}/...` continuam recebendo o id na URL (ticket de
+     * autenticação não mudou essa parte do contrato) — aqui é o id do usuário de teste
+     * autenticado por {@link AuthTestSupport} em {@link #garantirUsuarioAutenticado()}.
      */
     private UUID usuarioLocalId() {
-        return currentUserProvider.getCurrentUserId();
+        return usuarioAutenticadoId;
     }
 
     private UUID domainId(String slug) {

@@ -29,3 +29,24 @@ content:
   # IMPORTANTE: desligar (definir como false) antes de expor a API a usuários reais
   # em produção, quando houver conteúdo de fato revisado.
   incluir-rascunho: ${CONTENT_INCLUIR_RASCUNHO:true}
+
+auth:
+  jwt:
+    # ATENÇÃO: o valor abaixo é só para desenvolvimento local (mesmo padrão de aviso de
+    # DB_USERNAME/DB_PASSWORD acima). IMPORTANTE: definir AUTH_JWT_SECRET via variável de
+    # ambiente real (>= 32 bytes / 256 bits para HS256) antes de qualquer ambiente que não
+    # seja o laptop de dev.
+    secret: ${AUTH_JWT_SECRET:dev-only-secret-nao-use-em-producao-troque-via-AUTH_JWT_SECRET-32b}
+    # 24h (ticket, seção 7: "expiração razoável"): sem refresh token neste ticket (fora de
+    # escopo), equilíbrio entre não forçar login excessivo e limitar a janela de um token vazado.
+    expiration-minutes: ${AUTH_JWT_EXPIRATION_MINUTES:1440}
+  rate-limit:
+    # Rate limiting simplificado (ticket, seção 8) — ver limitações documentadas em
+    # identity.application.RateLimiter (em memória, não distribuído).
+    max-tentativas: ${AUTH_RATE_LIMIT_MAX_TENTATIVAS:10}
+    janela-minutos: ${AUTH_RATE_LIMIT_JANELA_MINUTOS:1}
+
+email:
+  # Mock por padrão (ticket, seção 12, OPEN QUESTION-D): credencial SMTP real ainda não
+  # provisionada. Trocar para "smtp" (+ configurar spring.mail.*) quando a credencial existir.
+  provider: ${EMAIL_PROVIDER:mock}

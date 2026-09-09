@@ -8,9 +8,11 @@ import com.scaleup.studyplatform.identity.application.ConsultarUsuarioAtualServi
 import com.scaleup.studyplatform.identity.application.dto.UsuarioAtualDto;
 
 /**
- * `GET /usuarios/atual`: permite ao cliente descobrir o `userId` do único usuário local do
- * MVP (sem autenticação real — ver {@link com.scaleup.studyplatform.identity.application.CurrentUserProvider}),
- * necessário para consumir os endpoints `/usuarios/{userId}/...` de Progress.
+ * `GET /usuarios/atual`: permite ao cliente descobrir o `userId` da conta autenticada pelo
+ * JWT da requisição (ver {@link com.scaleup.studyplatform.identity.application.CurrentUserProvider}),
+ * necessário para consumir os endpoints `/usuarios/{userId}/...` de Progress. Contrato
+ * observável preservado por TICKET-autenticacao.md (AC-09): mesmo endpoint, agora resolvendo
+ * usuário real em vez do registro fixo semeado por V24 (removido por V33).
  */
 @RestController
 @RequestMapping("/api")

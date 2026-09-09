@@ -2,8 +2,10 @@ package com.scaleup.studyplatform.content;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
@@ -21,6 +23,9 @@ import tools.jackson.databind.ObjectMapper;
 import com.scaleup.studyplatform.content.application.dto.ConceptDto;
 import com.scaleup.studyplatform.content.application.dto.DomainDetailDto;
 import com.scaleup.studyplatform.content.application.dto.DomainSummaryDto;
+import com.scaleup.studyplatform.identity.infra.AppUserRepository;
+import com.scaleup.studyplatform.identity.infra.TokenConfirmacaoCadastroRepository;
+import com.scaleup.studyplatform.support.AuthTestSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,7 +53,26 @@ class ContentModuleIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Autowired
+    private AppUserRepository appUserRepository;
+
+    @Autowired
+    private TokenConfirmacaoCadastroRepository tokenRepository;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    // Desde TICKET-autenticacao.md, todas as rotas de conteúdo exigem JWT — cadastra, confirma
+    // e loga um usuário de teste uma única vez por classe (contexto Spring/container
+    // compartilhado entre os métodos), registrando o Authorization header por interceptor.
+    private static final AtomicBoolean AUTENTICADO = new AtomicBoolean(false);
+
+    @BeforeEach
+    void garantirUsuarioAutenticado() {
+        if (AUTENTICADO.compareAndSet(false, true)) {
+            var autenticacao = AuthTestSupport.cadastrarConfirmarELogar(restTemplate, appUserRepository, tokenRepository);
+            AuthTestSupport.configurarAuthorizationHeaderPadrao(restTemplate, autenticacao.jwt());
+        }
+    }
 
     @Test
     void aplicaAsMigracoesESobeAAplicacao() {
