@@ -164,3 +164,42 @@ export interface HistoricoItem {
   iniciadoEm: string;
   concluidoEm: string;
 }
+
+// Tipos espelhando os DTOs reais do módulo Identity/auth
+// (identity/application/dto/*.java, TICKET-autenticacao.md).
+
+/** POST /api/auth/cadastro. Espelha `CadastroRequest`. */
+export interface CadastroRequest {
+  email: string;
+  senha: string;
+  confirmacaoSenha: string;
+}
+
+/** POST /api/auth/confirmar. Espelha `ConfirmarRequest`. */
+export interface ConfirmarRequest {
+  email: string;
+  token: string;
+}
+
+/** POST /api/auth/reenviar-token. Espelha `ReenviarRequest`. */
+export interface ReenviarRequest {
+  email: string;
+}
+
+/** POST /api/auth/login. Espelha `LoginRequest`. */
+export interface LoginRequest {
+  email: string;
+  senha: string;
+}
+
+/** Resposta de sucesso de cadastro/confirmar/reenviar-token — sempre mensagem genérica. Espelha `MensagemDto`. */
+export interface MensagemResponse {
+  mensagem: string;
+}
+
+/** AC-09: JWT emitido no login. `tipo` segue a convenção do header `Authorization: Bearer <token>`. Espelha `LoginResponseDto`. */
+export interface LoginResponse {
+  token: string;
+  tipo: string;
+  expiraEm: string;
+}
