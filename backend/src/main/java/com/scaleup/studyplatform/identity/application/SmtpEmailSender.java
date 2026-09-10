@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,6 +18,13 @@ import org.springframework.stereotype.Component;
  *
  * Não testada com credencial real ainda (não há credencial disponível) — validada só por
  * compilação/injeção de dependências.
+ *
+ * {@code @Async("emailTaskExecutor")} (TICKET-envio-email-assincrono.md, seção 7, Open
+ * Question-E, Opção A escolhida pelo Tito): a chamada de rede síncrona ao SMTP não deve
+ * bloquear a resposta HTTP de {@code POST /api/auth/cadastro} / {@code /reenviar-token}. Como
+ * {@link EmailSender} é injetado como bean separado nos services chamadores (não é
+ * self-invocation), o proxy {@code @Async} funciona normalmente mesmo sendo chamado de dentro
+ * de um método {@code @Transactional}.
  */
 @Component
 @ConditionalOnProperty(prefix = "email", name = "provider", havingValue = "smtp")
@@ -33,6 +41,7 @@ public class SmtpEmailSender implements EmailSender {
     }
 
     @Override
+    @Async("emailTaskExecutor")
     public void enviarTokenConfirmacao(String destinatario, String token) {
         SimpleMailMessage mensagem = new SimpleMailMessage();
         mensagem.setFrom(remetente);
