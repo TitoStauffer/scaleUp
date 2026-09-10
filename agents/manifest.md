@@ -8,6 +8,7 @@ Estes são perfis de trabalho reutilizáveis, não processos permanentes. O resp
 | [Software Architect](software-architect.md) | Decisões e plano técnico | A mudança afeta componentes, dados ou contratos |
 | [Backend Engineer](backend-engineer.md) | Serviços Java/Spring e dados de aplicação | Há implementação ou revisão de backend |
 | [Frontend & Mobile Engineer](frontend-mobile-engineer.md) | React, Flutter e React Native | Há interface web ou aplicativo mobile |
+| [UI/UX Agent](ui-ux.md) | Pesquisa, experiência, interface e validação de UX/UI | Há descoberta de UX, desenho de fluxo/tela, sistema visual ou handoff para frontend |
 | [QA Engineer](qa-engineer.md) | Estratégia e evidência de qualidade | Há risco de regressão, release ou defeito a investigar |
 | [DevOps Engineer](devops-engineer.md) | Entrega, ambientes e operação | Há pipeline, infraestrutura, ambiente ou incidente |
 | [AppSec Engineer](appsec-engineer.md) | Risco e controles de segurança | Há dados sensíveis, superfície de ataque ou finding de segurança |
