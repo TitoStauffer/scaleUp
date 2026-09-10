@@ -26,7 +26,7 @@ export function DomainLayout() {
   return (
     <section aria-labelledby="domain-title">
       <p className="breadcrumb">
-        <Link to="/">Domínios</Link> / {titulo}
+        <Link to="/dominios">Domínios</Link> / {titulo}
       </p>
       <h1 id="domain-title">{titulo}</h1>
       <nav aria-label="Seções do domínio" className="domain-tabs">

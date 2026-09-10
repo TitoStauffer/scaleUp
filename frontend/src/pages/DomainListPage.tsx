@@ -10,11 +10,10 @@ export function DomainListPage() {
     <section aria-labelledby="domains-title">
       <h1 id="domains-title">Domínios de estudo</h1>
       <p className="page-intro">
-        Escolha um domínio para estudar os slides, revisar flashcards e treinar com
-        questões de múltipla escolha.
-      </p>
-      <p className="page-actions">
-        <Link to="/resultado-geral">Ver resultado geral</Link>
+        Esta é a navegação por domínio: escolha um domínio específico para estudar os slides,
+        revisar flashcards e treinar com questões de múltipla escolha. Para praticar por tarefa
+        (Estudar, Revisar ou Quiz) cruzando todos os domínios de uma vez, use a navegação
+        principal no topo da página.
       </p>
       <RequestState result={result} loadingLabel="Carregando domínios...">
         {(dominios) =>

@@ -6,6 +6,7 @@ import { iniciarQuizAttempt, submeterQuizAttempt } from '../api/quizAttempts';
 import { ApiError } from '../api/client';
 import { useAsync } from '../hooks/useAsync';
 import { RequestState } from '../components/RequestState';
+import { useFilaSequencial } from '../fila/FilaSequencialContext';
 import type { QuizAttempt, RespostaSubmissao, SubmissaoResultado } from '../api/types';
 
 interface FluxoQuiz {
@@ -38,9 +39,20 @@ function nivelLabel(progresso: SubmissaoResultado['progresso']): string {
   return `Nível atual do domínio: ${progresso.nivelAtual} (pontuação geral ${progresso.pontuacaoGeral?.toFixed(2)}).`;
 }
 
-export function QuizPage() {
-  const { slug } = useParams<{ slug: string }>();
-  const result = useAsync(() => iniciarFluxoQuiz(slug ?? ''), [slug]);
+// Ticket UI/UX — seletor de confiança escondido da UI por decisão de produto (não é bug,
+// não remover a lógica). Religar: trocar para `true`.
+const EXIBIR_SELETOR_CONFIANCA = false;
+
+interface Props {
+  /** Slug vindo da fila sequencial (`FilaSequencialPage`) — ver `DomainSlidesPage` para o mesmo padrão. */
+  slugProp?: string;
+}
+
+export function QuizPage({ slugProp }: Props = {}) {
+  const { slug: slugParam } = useParams<{ slug: string }>();
+  const slug = slugProp ?? slugParam ?? '';
+  const fila = useFilaSequencial();
+  const result = useAsync(() => iniciarFluxoQuiz(slug), [slug]);
 
   const [index, setIndex] = useState(0);
   const [respostas, setRespostas] = useState<Record<string, string>>({});
@@ -87,9 +99,21 @@ export function QuizPage() {
       {({ attempt: tentativa }) => {
         if (tentativa.questoes.length === 0) {
           return (
-            <p className="empty-state">
-              Nenhuma questão disponível para este domínio ainda.
-            </p>
+            <>
+              <p className="empty-state">
+                Nenhuma questão disponível para este domínio ainda.
+              </p>
+              {fila && (
+                <div className="fila-progresso">
+                  <button type="button" onClick={fila.avancar}>
+                    Próximo domínio
+                  </button>
+                  <button type="button" className="logout-button" onClick={fila.encerrar}>
+                    Encerrar sessão de tudo
+                  </button>
+                </div>
+              )}
+            </>
           );
         }
 
@@ -124,11 +148,27 @@ export function QuizPage() {
                 })}
               </ol>
 
+              {fila && (
+                <p className="fila-counter">
+                  Domínio {fila.indiceAtual + 1} de {fila.totalDominios} concluído.
+                </p>
+              )}
+
               <div className="quiz-summary-actions">
                 <Link to={`/dominios/${slug}/progresso`}>Ver progresso do domínio</Link>
                 <button type="button" onClick={result.reload}>
                   Fazer nova tentativa
                 </button>
+                {fila && (
+                  <>
+                    <button type="button" onClick={fila.avancar}>
+                      Próximo domínio
+                    </button>
+                    <button type="button" className="logout-button" onClick={fila.encerrar}>
+                      Encerrar sessão de tudo
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           );
@@ -167,23 +207,25 @@ export function QuizPage() {
               ))}
             </fieldset>
 
-            <fieldset className="quiz-confianca" disabled={enviando}>
-              <legend>Quão confiante você está nesta resposta? (opcional)</legend>
-              <div className="quiz-confianca-options">
-                {[1, 2, 3, 4, 5].map((nivel) => (
-                  <label key={nivel} className="quiz-confianca-option">
-                    <input
-                      type="radio"
-                      name={`confianca-${questao.id}`}
-                      value={nivel}
-                      checked={confiancas[questao.id] === nivel}
-                      onChange={() => setConfiancas((prev) => ({ ...prev, [questao.id]: nivel }))}
-                    />
-                    {nivel}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
+            {EXIBIR_SELETOR_CONFIANCA && (
+              <fieldset className="quiz-confianca" disabled={enviando}>
+                <legend>Quão confiante você está nesta resposta? (opcional)</legend>
+                <div className="quiz-confianca-options">
+                  {[1, 2, 3, 4, 5].map((nivel) => (
+                    <label key={nivel} className="quiz-confianca-option">
+                      <input
+                        type="radio"
+                        name={`confianca-${questao.id}`}
+                        value={nivel}
+                        checked={confiancas[questao.id] === nivel}
+                        onChange={() => setConfiancas((prev) => ({ ...prev, [questao.id]: nivel }))}
+                      />
+                      {nivel}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            )}
 
             <div className="pager">
               <button

@@ -10,15 +10,17 @@ async function carregarResultadoGeral(): Promise<ResultadoGeral> {
   return fetchResultadoGeral(usuario.id);
 }
 
-export function ResultadoGeralPage() {
+/**
+ * Bloco "Resumo geral" do dashboard (ticket UI/UX, seção 6.3) — fusão da antiga
+ * `ResultadoGeralPage`, mesmo endpoint (`GET /usuarios/{userId}/resultado-geral`). Trata seu
+ * próprio erro/loading independentemente dos outros blocos do dashboard (AC-14).
+ */
+export function ResumoGeralCard() {
   const result = useAsync(carregarResultadoGeral, []);
 
   return (
-    <section aria-labelledby="resultado-geral-title">
-      <p className="breadcrumb">
-        <Link to="/">Domínios</Link> / Resultado geral
-      </p>
-      <h1 id="resultado-geral-title">Resultado geral</h1>
+    <div className="dashboard-block" aria-labelledby="resumo-geral-title">
+      <h2 id="resumo-geral-title">Resumo geral</h2>
       <RequestState result={result} loadingLabel="Carregando resultado geral...">
         {(resultado) =>
           resultado.avaliado ? (
@@ -30,13 +32,16 @@ export function ResultadoGeralPage() {
               </p>
             </div>
           ) : (
-            <p className="empty-state">
-              Ainda não avaliado — conclua evidências suficientes (quiz e flashcards) em pelo
-              menos um domínio para ver seu resultado geral.
-            </p>
+            <div className="empty-state">
+              <p>
+                Ainda não avaliado — conclua evidências suficientes (quiz e flashcards) em pelo
+                menos um domínio para ver seu resultado geral.
+              </p>
+              <Link to="/estudar">Começar a estudar</Link>
+            </div>
           )
         }
       </RequestState>
-    </section>
+    </div>
   );
 }

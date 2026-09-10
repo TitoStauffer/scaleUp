@@ -9,8 +9,13 @@ export function fetchDominioDetalhe(slug: string): Promise<DomainDetail> {
   return apiGet<DomainDetail>(`/api/dominios/${encodeURIComponent(slug)}`);
 }
 
-export function fetchFlashcards(slug: string): Promise<Flashcard[]> {
-  return apiGet<Flashcard[]>(`/api/dominios/${encodeURIComponent(slug)}/flashcards`);
+/**
+ * `dificuldade` é opcional (filtro já suportado pelo backend, ticket UI/UX seção 5.4) —
+ * sem o parâmetro, o comportamento é idêntico ao de antes (todos os flashcards do domínio).
+ */
+export function fetchFlashcards(slug: string, dificuldade?: string): Promise<Flashcard[]> {
+  const query = dificuldade ? `?${new URLSearchParams({ dificuldade }).toString()}` : '';
+  return apiGet<Flashcard[]>(`/api/dominios/${encodeURIComponent(slug)}/flashcards${query}`);
 }
 
 export function fetchQuestoes(slug: string): Promise<Question[]> {
