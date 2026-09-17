@@ -18,6 +18,9 @@ import { ProgressoPage } from './pages/ProgressoPage'
 import { HistoricoPage } from './pages/HistoricoPage'
 import { EscolherEscopoPage } from './pages/EscolherEscopoPage'
 import { FilaSequencialPage } from './pages/FilaSequencialPage'
+import { ContaPage } from './pages/ContaPage'
+import { EsqueciSenhaPage } from './pages/EsqueciSenhaPage'
+import { RedefinirSenhaPage } from './pages/RedefinirSenhaPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 
 createRoot(document.getElementById('root')!).render(
@@ -31,6 +34,8 @@ createRoot(document.getElementById('root')!).render(
             <Route path="login" element={<LoginPage />} />
             <Route path="cadastro" element={<CadastroPage />} />
             <Route path="confirmar" element={<ConfirmarPage />} />
+            <Route path="esqueci-senha" element={<EsqueciSenhaPage />} />
+            <Route path="redefinir-senha" element={<RedefinirSenhaPage />} />
 
             {/* TICKET-autenticacao.md, seção 10: toda rota de conteúdo/estudo/quiz/progresso
                 exige JWT válido — sem token, cai em /login. */}
@@ -60,6 +65,9 @@ createRoot(document.getElementById('root')!).render(
               <Route path="revisar/tudo" element={<FilaSequencialPage modo="revisar" />} />
               <Route path="quiz" element={<EscolherEscopoPage modo="quiz" />} />
               <Route path="quiz/tudo" element={<FilaSequencialPage modo="quiz" />} />
+
+              {/* TICKET-alterar-senha.md, seção 7. */}
+              <Route path="conta" element={<ContaPage />} />
             </Route>
 
             <Route path="*" element={<NotFoundPage />} />

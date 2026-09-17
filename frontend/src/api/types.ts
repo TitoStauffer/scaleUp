@@ -197,6 +197,25 @@ export interface MensagemResponse {
   mensagem: string;
 }
 
+/** POST /api/usuarios/atual/senha. Espelha `AlterarSenhaRequest`. */
+export interface AlterarSenhaRequest {
+  senhaAtual: string;
+  novaSenha: string;
+  confirmacaoNovaSenha: string;
+}
+
+/** POST /api/auth/esqueci-senha. Espelha `EsqueciSenhaRequest`. */
+export interface EsqueciSenhaRequest {
+  email: string;
+}
+
+/** POST /api/auth/redefinir-senha. Espelha `RedefinirSenhaRequest`. */
+export interface RedefinirSenhaRequest {
+  token: string;
+  novaSenha: string;
+  confirmacaoNovaSenha: string;
+}
+
 /** AC-09: JWT emitido no login. `tipo` segue a convenção do header `Authorization: Bearer <token>`. Espelha `LoginResponseDto`. */
 export interface LoginResponse {
   token: string;

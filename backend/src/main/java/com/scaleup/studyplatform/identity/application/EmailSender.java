@@ -11,4 +11,7 @@ package com.scaleup.studyplatform.identity.application;
 public interface EmailSender {
 
     void enviarTokenConfirmacao(String destinatario, String token);
+
+    /** TICKET-esqueci-minha-senha.md, seção 7 — token opaco pensado para link clicável. */
+    void enviarTokenRecuperacaoSenha(String destinatario, String token);
 }

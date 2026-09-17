@@ -133,6 +133,9 @@ export function LoginPage() {
       </form>
 
       <p className="auth-links">
+        <Link to="/esqueci-senha">Esqueceu a senha?</Link>
+      </p>
+      <p className="auth-links">
         Ainda não tem conta? <Link to="/cadastro">Cadastre-se</Link>
       </p>
       <p className="auth-links">

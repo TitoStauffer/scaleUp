@@ -57,4 +57,21 @@ public class SmtpEmailSender implements EmailSender {
             log.error("Falha ao enviar e-mail de confirmação para '{}'", destinatario, e);
         }
     }
+
+    @Override
+    @Async("emailTaskExecutor")
+    public void enviarTokenRecuperacaoSenha(String destinatario, String token) {
+        SimpleMailMessage mensagem = new SimpleMailMessage();
+        mensagem.setFrom(remetente);
+        mensagem.setTo(destinatario);
+        mensagem.setSubject("ScaleUp - recuperação de senha");
+        mensagem.setText("Recebemos uma solicitação de recuperação de senha para esta conta.\n\n"
+                + "Token de recuperação: " + token
+                + "\n\nEle expira em 45 minutos. Se você não solicitou esta recuperação, ignore este e-mail.");
+        try {
+            mailSender.send(mensagem);
+        } catch (RuntimeException e) {
+            log.error("Falha ao enviar e-mail de recuperação de senha para '{}'", destinatario, e);
+        }
+    }
 }

@@ -24,4 +24,9 @@ public class LogEmailSender implements EmailSender {
     public void enviarTokenConfirmacao(String destinatario, String token) {
         log.info("[MOCK EMAIL] Token de confirmação de cadastro para '{}': {}", destinatario, token);
     }
+
+    @Override
+    public void enviarTokenRecuperacaoSenha(String destinatario, String token) {
+        log.info("[MOCK EMAIL] Token de recuperação de senha para '{}': {}", destinatario, token);
+    }
 }

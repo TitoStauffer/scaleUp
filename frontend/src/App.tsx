@@ -24,9 +24,14 @@ export function App() {
           )}
         </div>
         {isAuthenticated && (
-          <button type="button" className="logout-button" onClick={logout}>
-            Sair
-          </button>
+          <div className="app-header-end">
+            {/* TICKET-alterar-senha.md, OPEN QUESTION-005: link direto no header, mesmo nível
+                visual do "Sair" — mais simples que um dropdown para o único item existente. */}
+            <NavLink to="/conta">Minha conta</NavLink>
+            <button type="button" className="logout-button" onClick={logout}>
+              Sair
+            </button>
+          </div>
         )}
       </header>
       <main className="app-main">

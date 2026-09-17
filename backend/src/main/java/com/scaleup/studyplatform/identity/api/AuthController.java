@@ -9,13 +9,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.scaleup.studyplatform.identity.application.CadastrarContaService;
 import com.scaleup.studyplatform.identity.application.ConfirmarCadastroService;
+import com.scaleup.studyplatform.identity.application.EsqueciSenhaService;
 import com.scaleup.studyplatform.identity.application.LoginService;
+import com.scaleup.studyplatform.identity.application.RedefinirSenhaService;
 import com.scaleup.studyplatform.identity.application.ReenviarTokenService;
 import com.scaleup.studyplatform.identity.application.dto.CadastroRequest;
 import com.scaleup.studyplatform.identity.application.dto.ConfirmarRequest;
+import com.scaleup.studyplatform.identity.application.dto.EsqueciSenhaRequest;
 import com.scaleup.studyplatform.identity.application.dto.LoginRequest;
 import com.scaleup.studyplatform.identity.application.dto.LoginResponseDto;
 import com.scaleup.studyplatform.identity.application.dto.MensagemDto;
+import com.scaleup.studyplatform.identity.application.dto.RedefinirSenhaRequest;
 import com.scaleup.studyplatform.identity.application.dto.ReenviarRequest;
 
 /**
@@ -31,13 +35,18 @@ public class AuthController {
     private final ConfirmarCadastroService confirmarCadastroService;
     private final ReenviarTokenService reenviarTokenService;
     private final LoginService loginService;
+    private final EsqueciSenhaService esqueciSenhaService;
+    private final RedefinirSenhaService redefinirSenhaService;
 
     public AuthController(CadastrarContaService cadastrarContaService, ConfirmarCadastroService confirmarCadastroService,
-            ReenviarTokenService reenviarTokenService, LoginService loginService) {
+            ReenviarTokenService reenviarTokenService, LoginService loginService, EsqueciSenhaService esqueciSenhaService,
+            RedefinirSenhaService redefinirSenhaService) {
         this.cadastrarContaService = cadastrarContaService;
         this.confirmarCadastroService = confirmarCadastroService;
         this.reenviarTokenService = reenviarTokenService;
         this.loginService = loginService;
+        this.esqueciSenhaService = esqueciSenhaService;
+        this.redefinirSenhaService = redefinirSenhaService;
     }
 
     @PostMapping("/cadastro")
@@ -58,5 +67,15 @@ public class AuthController {
     @PostMapping("/login")
     public LoginResponseDto login(@Valid @RequestBody LoginRequest request) {
         return loginService.login(request);
+    }
+
+    @PostMapping("/esqueci-senha")
+    public MensagemDto esqueciSenha(@Valid @RequestBody EsqueciSenhaRequest request) {
+        return esqueciSenhaService.solicitar(request);
+    }
+
+    @PostMapping("/redefinir-senha")
+    public MensagemDto redefinirSenha(@Valid @RequestBody RedefinirSenhaRequest request) {
+        return redefinirSenhaService.redefinir(request);
     }
 }

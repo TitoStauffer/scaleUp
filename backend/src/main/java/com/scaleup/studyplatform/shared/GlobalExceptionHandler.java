@@ -16,8 +16,10 @@ import com.scaleup.studyplatform.identity.application.CredenciaisInvalidasExcept
 import com.scaleup.studyplatform.identity.application.EmailJaCadastradoAtivoException;
 import com.scaleup.studyplatform.identity.application.EmailJaCadastradoPendenteException;
 import com.scaleup.studyplatform.identity.application.RateLimitExcedidoException;
+import com.scaleup.studyplatform.identity.application.SenhaAtualIncorretaException;
 import com.scaleup.studyplatform.identity.application.TokenExpiradoException;
 import com.scaleup.studyplatform.identity.application.TokenInvalidoException;
+import com.scaleup.studyplatform.identity.application.TokenRecuperacaoInvalidoException;
 
 /**
  * Tratamento de erro HTTP comum a todos os módulos (shared, conforme
@@ -108,6 +110,26 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ApiErrorResponse(Instant.now(), 409, "EMAIL_JA_CADASTRADO_PENDENTE", ex.getMessage(),
+                        request.getRequestURI()));
+    }
+
+    // ---- TICKET-alterar-senha.md ----
+
+    @ExceptionHandler(SenhaAtualIncorretaException.class)
+    public ResponseEntity<ApiErrorResponse> handleSenhaAtualIncorreta(SenhaAtualIncorretaException ex,
+            HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiErrorResponse(Instant.now(), 401, "SENHA_ATUAL_INCORRETA", ex.getMessage(),
+                        request.getRequestURI()));
+    }
+
+    // ---- TICKET-esqueci-minha-senha.md ----
+
+    @ExceptionHandler(TokenRecuperacaoInvalidoException.class)
+    public ResponseEntity<ApiErrorResponse> handleTokenRecuperacaoInvalido(TokenRecuperacaoInvalidoException ex,
+            HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiErrorResponse(Instant.now(), 400, "TOKEN_RECUPERACAO_INVALIDO", ex.getMessage(),
                         request.getRequestURI()));
     }
 
