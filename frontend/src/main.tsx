@@ -19,6 +19,7 @@ import { HistoricoPage } from './pages/HistoricoPage'
 import { EscolherEscopoPage } from './pages/EscolherEscopoPage'
 import { FilaSequencialPage } from './pages/FilaSequencialPage'
 import { ContaPage } from './pages/ContaPage'
+import { PerfilPage } from './pages/PerfilPage'
 import { EsqueciSenhaPage } from './pages/EsqueciSenhaPage'
 import { RedefinirSenhaPage } from './pages/RedefinirSenhaPage'
 import { NotFoundPage } from './pages/NotFoundPage'
@@ -68,6 +69,8 @@ createRoot(document.getElementById('root')!).render(
 
               {/* TICKET-alterar-senha.md, seção 7. */}
               <Route path="conta" element={<ContaPage />} />
+              {/* TICKET-perfil-usuario.md, seção 9. */}
+              <Route path="perfil" element={<PerfilPage />} />
             </Route>
 
             <Route path="*" element={<NotFoundPage />} />

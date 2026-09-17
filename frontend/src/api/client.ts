@@ -83,6 +83,97 @@ export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
   return handleResponse<T>(response, Boolean(token));
 }
 
+/** PUT com corpo JSON. Usado por `PUT /api/usuarios/atual/perfil` (TICKET-perfil-usuario.md). */
+export async function apiPut<T>(path: string, body?: unknown): Promise<T> {
+  const token = getToken();
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method: 'PUT',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...authHeaders() },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiError(
+      'Não foi possível conectar à API. Verifique se o servidor está disponível e tente novamente.',
+      0,
+    );
+  }
+
+  return handleResponse<T>(response, Boolean(token));
+}
+
+/** DELETE sem corpo. Usado por `DELETE /api/usuarios/atual/foto` (TICKET-perfil-usuario.md). */
+export async function apiDelete<T>(path: string): Promise<T> {
+  const token = getToken();
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method: 'DELETE',
+      headers: { Accept: 'application/json', ...authHeaders() },
+    });
+  } catch {
+    throw new ApiError(
+      'Não foi possível conectar à API. Verifique se o servidor está disponível e tente novamente.',
+      0,
+    );
+  }
+
+  return handleResponse<T>(response, Boolean(token));
+}
+
+/**
+ * Upload multipart/form-data. Usado por `POST /api/usuarios/atual/foto`
+ * (TICKET-perfil-usuario.md) — não define `Content-Type` manualmente: o browser precisa
+ * gerar o boundary do multipart sozinho a partir do `FormData`.
+ */
+export async function apiUpload<T>(path: string, formData: FormData): Promise<T> {
+  const token = getToken();
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method: 'POST',
+      headers: { Accept: 'application/json', ...authHeaders() },
+      body: formData,
+    });
+  } catch {
+    throw new ApiError(
+      'Não foi possível conectar à API. Verifique se o servidor está disponível e tente novamente.',
+      0,
+    );
+  }
+
+  return handleResponse<T>(response, Boolean(token));
+}
+
+/**
+ * Busca um recurso binário (a foto de perfil) autenticado e devolve uma Object URL pronta
+ * para usar em `<img src>` — `fetch` comum não anexaria o header Authorization se a imagem
+ * fosse carregada direto via `<img src="/api/...">`.
+ */
+export async function apiGetBlobUrl(path: string): Promise<string | null> {
+  const token = getToken();
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, { headers: { ...authHeaders() } });
+  } catch {
+    throw new ApiError(
+      'Não foi possível conectar à API. Verifique se o servidor está disponível e tente novamente.',
+      0,
+    );
+  }
+
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    return handleResponse<string>(response, Boolean(token));
+  }
+
+  const blob = await response.blob();
+  return URL.createObjectURL(blob);
+}
+
 /**
  * `requestHadToken` distingue um 401 de sessão expirada (chamada autenticada cujo token não
  * vale mais — deve limpar o token e mandar para /login, ticket seção 8) de um 401 esperado do

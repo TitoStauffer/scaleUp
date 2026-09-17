@@ -8,15 +8,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import com.scaleup.studyplatform.identity.application.ArquivoMuitoGrandeException;
 import com.scaleup.studyplatform.identity.application.ContaNaoConfirmadaException;
 import com.scaleup.studyplatform.identity.application.CredenciaisInvalidasException;
 import com.scaleup.studyplatform.identity.application.EmailJaCadastradoAtivoException;
 import com.scaleup.studyplatform.identity.application.EmailJaCadastradoPendenteException;
 import com.scaleup.studyplatform.identity.application.RateLimitExcedidoException;
 import com.scaleup.studyplatform.identity.application.SenhaAtualIncorretaException;
+import com.scaleup.studyplatform.identity.application.TipoArquivoNaoSuportadoException;
 import com.scaleup.studyplatform.identity.application.TokenExpiradoException;
 import com.scaleup.studyplatform.identity.application.TokenInvalidoException;
 import com.scaleup.studyplatform.identity.application.TokenRecuperacaoInvalidoException;
@@ -130,6 +133,36 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ApiErrorResponse(Instant.now(), 400, "TOKEN_RECUPERACAO_INVALIDO", ex.getMessage(),
+                        request.getRequestURI()));
+    }
+
+    // ---- TICKET-perfil-usuario.md ----
+
+    @ExceptionHandler(ArquivoMuitoGrandeException.class)
+    public ResponseEntity<ApiErrorResponse> handleArquivoMuitoGrande(ArquivoMuitoGrandeException ex,
+            HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiErrorResponse(Instant.now(), 400, "ARQUIVO_MUITO_GRANDE", ex.getMessage(),
+                        request.getRequestURI()));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiErrorResponse> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex,
+            HttpServletRequest request) {
+        // Rede de segurança do limite configurado em spring.servlet.multipart.max-file-size
+        // (application.yml) — a validação de negócio (2MB, ArquivoMuitoGrandeException) já
+        // cobre o caso esperado; este handler só evita a página de erro default do Spring
+        // para requisições anormalmente grandes que nem chegam ao service.
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiErrorResponse(Instant.now(), 400, "ARQUIVO_MUITO_GRANDE", "arquivo excede o limite de 2MB",
+                        request.getRequestURI()));
+    }
+
+    @ExceptionHandler(TipoArquivoNaoSuportadoException.class)
+    public ResponseEntity<ApiErrorResponse> handleTipoArquivoNaoSuportado(TipoArquivoNaoSuportadoException ex,
+            HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiErrorResponse(Instant.now(), 400, "TIPO_ARQUIVO_NAO_SUPORTADO", ex.getMessage(),
                         request.getRequestURI()));
     }
 

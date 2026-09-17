@@ -412,6 +412,72 @@ h1 { margin: 0 0 .5rem; font-size: clamp(1.8rem, 5vw, 2.75rem); line-height: 1.1
 .link-button:hover { background: none; color: #4054c2; }
 .link-button:disabled { color: #c3c9dc; cursor: not-allowed; }
 
+/* Perfil do usuário (TICKET-perfil-usuario.md) */
+.perfil-page {
+  max-width: 40rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.perfil-foto {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #fff;
+  border: 1px solid #e3e8f2;
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+}
+.perfil-foto-preview {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #e3e8f2;
+}
+.perfil-foto-preview--vazia {
+  border: 1px dashed #c7cede;
+}
+.perfil-foto-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+.perfil-foto-upload {
+  display: inline-block;
+  font-weight: 600;
+  color: #5267d9;
+  cursor: pointer;
+}
+.perfil-estatisticas-geral {
+  background: #fff;
+  border: 1px solid #e3e8f2;
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+.perfil-estatisticas-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #e3e8f2;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+.perfil-estatisticas-tabela th,
+.perfil-estatisticas-tabela td {
+  text-align: left;
+  padding: .6rem 1rem;
+  border-bottom: 1px solid #e3e8f2;
+}
+.perfil-estatisticas-tabela th {
+  background: #f5f7fb;
+  font-weight: 700;
+}
+
 .password-checklist {
   list-style: none;
   margin: -.5rem 0 0;

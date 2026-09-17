@@ -13,4 +13,8 @@ public interface DomainProgressRepository extends JpaRepository<DomainProgress, 
     Optional<DomainProgress> findByUserIdAndDomainRef(UUID userId, UUID domainRef);
 
     List<DomainProgress> findByUserIdAndVolumeMinimoAtingidoTrue(UUID userId);
+
+    // TICKET-perfil-usuario.md, seção 7: todos os DomainProgress do usuário de uma vez, para
+    // montar o bloco "porDominio" das estatísticas sem 1 query por domínio.
+    List<DomainProgress> findByUserId(UUID userId);
 }

@@ -15,6 +15,13 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  servlet:
+    multipart:
+      # TICKET-perfil-usuario.md, seção 5.3: limite de negócio é 2MB (ArquivoMuitoGrandeException,
+      # validado no service); a margem aqui só evita que o default do Spring (1MB) rejeite
+      # arquivos válidos antes mesmo de chegar à validação de negócio.
+      max-file-size: 3MB
+      max-request-size: 3MB
   mail:
     host: ${SMTP_HOST:}
     port: ${SMTP_PORT:587}

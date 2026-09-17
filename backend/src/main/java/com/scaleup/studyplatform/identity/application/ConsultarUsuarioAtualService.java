@@ -21,7 +21,11 @@ public class ConsultarUsuarioAtualService {
 
     @Transactional(readOnly = true)
     public UsuarioAtualDto consultar() {
-        AppUser usuario = currentUserProvider.getCurrentUser();
-        return new UsuarioAtualDto(usuario.getId(), usuario.getNome(), usuario.getEmail());
+        return mapear(currentUserProvider.getCurrentUser());
+    }
+
+    static UsuarioAtualDto mapear(AppUser usuario) {
+        return new UsuarioAtualDto(usuario.getId(), usuario.getNome(), usuario.getEmail(), usuario.getDataNascimento(),
+                usuario.temFotoPerfil());
     }
 }

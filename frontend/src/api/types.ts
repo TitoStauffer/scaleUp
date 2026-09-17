@@ -142,8 +142,10 @@ export interface DomainProgress {
  */
 export interface UsuarioAtual {
   id: string;
-  nome: string;
+  nome: string | null;
   email: string;
+  dataNascimento: string | null;
+  temFotoPerfil: boolean;
 }
 
 /**
@@ -190,6 +192,36 @@ export interface ReenviarRequest {
 export interface LoginRequest {
   email: string;
   senha: string;
+}
+
+/** PUT /api/usuarios/atual/perfil. Espelha `AtualizarPerfilRequest`. */
+export interface AtualizarPerfilRequest {
+  nome: string | null;
+  dataNascimento: string | null;
+}
+
+/** Item de "porDominio" em GET /api/usuarios/atual/perfil/estatisticas. Espelha `EstatisticasDominioDto`. */
+export interface EstatisticasDominio {
+  domainRef: string;
+  nomeDominio: string;
+  totalSessoesEstudo: number;
+  totalTentativasQuiz: number;
+  volumeMinimoAtingido: boolean;
+  pontuacaoQuizMedia: number | null;
+}
+
+/** Bloco "geral" de GET /api/usuarios/atual/perfil/estatisticas. Espelha `EstatisticasGeraisDto`. */
+export interface EstatisticasGerais {
+  totalSessoesEstudo: number;
+  totalTentativasQuiz: number;
+  resultadoGeralAvaliado: boolean;
+  pontuacaoGeralMedia: number | null;
+}
+
+/** GET /api/usuarios/atual/perfil/estatisticas. Espelha `EstatisticasPerfilDto`. */
+export interface EstatisticasPerfil {
+  geral: EstatisticasGerais;
+  porDominio: EstatisticasDominio[];
 }
 
 /** Resposta de sucesso de cadastro/confirmar/reenviar-token — sempre mensagem genérica. Espelha `MensagemDto`. */
