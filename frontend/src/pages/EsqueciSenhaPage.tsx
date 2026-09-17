@@ -33,9 +33,12 @@ export function EsqueciSenhaPage() {
       <h1 id="esqueci-senha-title">Esqueci minha senha</h1>
 
       {estado.status === 'enviado' ? (
-        <p role="status" className="status-message">
-          Se este e-mail estiver cadastrado e a conta ativa, você receberá instruções de recuperação em instantes.
-        </p>
+        <div role="status" className="status-message">
+          <p>Se este e-mail estiver cadastrado e a conta ativa, você receberá instruções de recuperação em instantes.</p>
+          <p>
+            Já tem o token em mãos? <Link to="/redefinir-senha">Redefinir senha agora</Link>
+          </p>
+        </div>
       ) : (
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
           <label className="auth-field">
