@@ -40,7 +40,9 @@ import com.scaleup.studyplatform.shared.ApiErrorResponse;
  * (cadastro/confirmação/reenvio/login + proteção de rotas), sem mock de repositório/serviço —
  * mesmo padrão de {@code AssessmentProgressModuleIntegrationTest}.
  *
- * Cobre os 14 critérios de aceite de TICKET-autenticacao.md, seção 13 (AC-01 a AC-14).
+ * Cobre os 14 critérios de aceite de TICKET-autenticacao.md, seção 13 (AC-01 a AC-14) — exceto
+ * o AC-01 original, revogado por TICKET-cadastro-email-duplicado-visivel.md — mais os
+ * critérios AC-01 a AC-03 desse ticket novo (prefixo {@code emailDuplicadoAcXX}).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestRestTemplate
@@ -63,20 +65,54 @@ class AuthModuleIntegrationTest {
     private TokenConfirmacaoCadastroRepository tokenRepository;
 
     @Test
-    void ac01_cadastroComEmailJaExistenteEAtivoRespondeMensagemGenericaSemReenviarEmail() {
+    void emailDuplicadoAc01_cadastroComEmailNovoCriaContaPendenteEEnviaToken() {
+        String email = novoEmail();
+        ResponseEntity<MensagemDto> resposta = cadastrar(email, SENHA_FORTE, SENHA_FORTE);
+
+        assertThat(resposta.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(resposta.getBody()).isNotNull();
+        assertThat(resposta.getBody().mensagem()).isNotBlank();
+        assertThat(appUserRepository.findByEmail(email).orElseThrow().isAtiva()).isFalse();
+    }
+
+    @Test
+    void emailDuplicadoAc02_cadastroComEmailJaAtivoRespondeErroVisivelSemCriarContaNovaNemEnviarEmail() {
         String email = novoEmail();
         cadastrar(email, SENHA_FORTE, SENHA_FORTE);
         confirmar(email, tokenAbertoDe(email));
+        UUID userId = appUserRepository.findByEmail(email).orElseThrow().getId();
+        long totalTokensAntes = tokenRepository.findAll().stream().filter(t -> t.getUserId().equals(userId)).count();
 
         // Segunda tentativa de cadastro com o MESMO e-mail, já ativo.
-        ResponseEntity<MensagemDto> segundaTentativa = cadastrar(email, SENHA_FORTE, SENHA_FORTE);
+        ResponseEntity<ApiErrorResponse> segundaTentativa = restTemplate.postForEntity("/api/auth/cadastro",
+                new CadastroRequest(email, SENHA_FORTE, SENHA_FORTE), ApiErrorResponse.class);
 
-        assertThat(segundaTentativa.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(segundaTentativa.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(segundaTentativa.getBody()).isNotNull();
-        // Mesma mensagem genérica de sempre — não revela que a conta já existe/está ativa.
-        assertThat(segundaTentativa.getBody().mensagem()).isNotBlank();
+        assertThat(segundaTentativa.getBody().erro()).isEqualTo("EMAIL_JA_CADASTRADO_ATIVO");
 
-        // Nenhum e-mail novo foi "enviado": nenhum token novo foi criado para essa conta.
+        // Nenhum e-mail novo foi enviado: nenhum token novo foi criado para essa conta.
+        long totalTokensDepois = tokenRepository.findAll().stream().filter(t -> t.getUserId().equals(userId)).count();
+        assertThat(totalTokensDepois).isEqualTo(totalTokensAntes);
+    }
+
+    @Test
+    void emailDuplicadoAc03_cadastroComEmailJaPendenteRespondeErroVisivelSemReenviarTokenAutomaticamente() {
+        String email = novoEmail();
+        cadastrar(email, SENHA_FORTE, SENHA_FORTE);
+        String tokenOriginal = tokenAbertoDe(email);
+
+        // Segunda tentativa de cadastro com o MESMO e-mail, ainda pendente.
+        ResponseEntity<ApiErrorResponse> segundaTentativa = restTemplate.postForEntity("/api/auth/cadastro",
+                new CadastroRequest(email, SENHA_FORTE, SENHA_FORTE), ApiErrorResponse.class);
+
+        assertThat(segundaTentativa.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(segundaTentativa.getBody()).isNotNull();
+        assertThat(segundaTentativa.getBody().erro()).isEqualTo("EMAIL_JA_CADASTRADO_PENDENTE");
+
+        // Nenhum token novo foi gerado como efeito colateral — o token original continua
+        // válido e é o único em aberto para essa conta.
+        assertThat(tokenAbertoDe(email)).isEqualTo(tokenOriginal);
         UUID userId = appUserRepository.findByEmail(email).orElseThrow().getId();
         long totalTokens = tokenRepository.findAll().stream().filter(t -> t.getUserId().equals(userId)).count();
         assertThat(totalTokens).isEqualTo(1);

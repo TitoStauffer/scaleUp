@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import com.scaleup.studyplatform.identity.application.ContaNaoConfirmadaException;
 import com.scaleup.studyplatform.identity.application.CredenciaisInvalidasException;
+import com.scaleup.studyplatform.identity.application.EmailJaCadastradoAtivoException;
+import com.scaleup.studyplatform.identity.application.EmailJaCadastradoPendenteException;
 import com.scaleup.studyplatform.identity.application.RateLimitExcedidoException;
 import com.scaleup.studyplatform.identity.application.TokenExpiradoException;
 import com.scaleup.studyplatform.identity.application.TokenInvalidoException;
@@ -88,6 +90,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleTokenExpirado(TokenExpiradoException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ApiErrorResponse(Instant.now(), 400, "TOKEN_EXPIRADO", ex.getMessage(),
+                        request.getRequestURI()));
+    }
+
+    // ---- TICKET-cadastro-email-duplicado-visivel.md ----
+
+    @ExceptionHandler(EmailJaCadastradoAtivoException.class)
+    public ResponseEntity<ApiErrorResponse> handleEmailJaCadastradoAtivo(EmailJaCadastradoAtivoException ex,
+            HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiErrorResponse(Instant.now(), 409, "EMAIL_JA_CADASTRADO_ATIVO", ex.getMessage(),
+                        request.getRequestURI()));
+    }
+
+    @ExceptionHandler(EmailJaCadastradoPendenteException.class)
+    public ResponseEntity<ApiErrorResponse> handleEmailJaCadastradoPendente(EmailJaCadastradoPendenteException ex,
+            HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiErrorResponse(Instant.now(), 409, "EMAIL_JA_CADASTRADO_PENDENTE", ex.getMessage(),
                         request.getRequestURI()));
     }
 

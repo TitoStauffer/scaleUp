@@ -4,14 +4,20 @@ import { cadastrar } from '../api/auth';
 import { ApiError } from '../api/client';
 import { PasswordChecklist } from '../components/PasswordChecklist';
 
-type Estado = { status: 'idle' } | { status: 'enviando' } | { status: 'erro'; mensagem: string };
+type Estado =
+  | { status: 'idle' }
+  | { status: 'enviando' }
+  | { status: 'email-ja-cadastrado-ativo' }
+  | { status: 'email-ja-cadastrado-pendente' }
+  | { status: 'erro'; mensagem: string };
 
 /**
- * Cadastro (ticket, seção 4 e 10). A checklist de senha (componente `PasswordChecklist`) é
- * só feedback em tempo real — não impede o envio (restrição explícita do Tito): quem
- * submete com requisito pendente recebe o erro real do backend (AC-02), fonte de verdade da
- * regra. A única checagem que bloqueia o envio aqui é senha != confirmação, que é UX pura
- * de digitação (ticket, seção 4), não segurança.
+ * Cadastro (TICKET-cadastro-email-duplicado-visivel.md, que revoga o anti-enumeração de
+ * cadastro de TICKET-autenticacao.md seção 4/10). A checklist de senha (componente
+ * `PasswordChecklist`) é só feedback em tempo real — não impede o envio (restrição explícita
+ * do Tito): quem submete com requisito pendente recebe o erro real do backend (AC-02), fonte
+ * de verdade da regra. A única checagem que bloqueia o envio aqui é senha != confirmação, que
+ * é UX pura de digitação (ticket, seção 4), não segurança.
  */
 export function CadastroPage() {
   const navigate = useNavigate();
@@ -35,15 +41,24 @@ export function CadastroPage() {
     setEstado({ status: 'enviando' });
     try {
       const resposta = await cadastrar({ email: email.trim(), senha, confirmacaoSenha });
-      // Mensagem sempre genérica (anti-enumeração, ticket seção 4) — nunca revela se o
-      // e-mail já existia.
       navigate('/confirmar', { state: { email: email.trim(), mensagem: resposta.mensagem } });
     } catch (err) {
+      if (err instanceof ApiError && err.code === 'EMAIL_JA_CADASTRADO_ATIVO') {
+        setEstado({ status: 'email-ja-cadastrado-ativo' });
+        return;
+      }
+      if (err instanceof ApiError && err.code === 'EMAIL_JA_CADASTRADO_PENDENTE') {
+        setEstado({ status: 'email-ja-cadastrado-pendente' });
+        return;
+      }
       const mensagem =
         err instanceof ApiError ? err.message : 'Ocorreu um erro inesperado. Tente novamente.';
       setEstado({ status: 'erro', mensagem });
     }
   }
+
+  const emailComErro =
+    estado.status === 'email-ja-cadastrado-ativo' || estado.status === 'email-ja-cadastrado-pendente';
 
   return (
     <section aria-labelledby="cadastro-title" className="auth-page">
@@ -60,8 +75,23 @@ export function CadastroPage() {
             value={email}
             disabled={enviando}
             onChange={(e) => setEmail(e.target.value)}
+            aria-invalid={emailComErro}
+            aria-describedby={emailComErro ? 'email-erro' : undefined}
           />
         </label>
+        {estado.status === 'email-ja-cadastrado-ativo' && (
+          <p id="email-erro" role="alert" className="auth-field-error">
+            Este e-mail já possui uma conta ativa. <Link to="/login">Fazer login</Link>
+          </p>
+        )}
+        {estado.status === 'email-ja-cadastrado-pendente' && (
+          <p id="email-erro" role="alert" className="auth-field-error">
+            Este e-mail já possui um cadastro pendente de confirmação.{' '}
+            <Link to="/confirmar" state={{ email: email.trim() }}>
+              Confirmar cadastro
+            </Link>
+          </p>
+        )}
 
         <label className="auth-field">
           <span>Senha</span>

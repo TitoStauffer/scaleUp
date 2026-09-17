@@ -14,13 +14,19 @@ import com.scaleup.studyplatform.identity.infra.AppUserRepository;
 import com.scaleup.studyplatform.identity.infra.TokenConfirmacaoCadastroRepository;
 
 /**
- * POST /api/auth/cadastro (ticket, seção 4). Resposta sempre genérica (anti-enumeração,
- * AC-01): o chamador nunca descobre pela resposta se o e-mail já existia.
+ * POST /api/auth/cadastro (TICKET-cadastro-email-duplicado-visivel.md, seção 4 — revoga o
+ * anti-enumeração de cadastro do AC-01 original de TICKET-autenticacao.md). E-mail novo
+ * responde com a mensagem genérica de sempre; e-mail já existente responde com um erro
+ * específico e visível ({@link EmailJaCadastradoAtivoException} ou
+ * {@link EmailJaCadastradoPendenteException}), sem criar conta nem enviar e-mail.
  */
 @Service
 public class CadastrarContaService {
 
     static final String MENSAGEM_GENERICA = "se o cadastro foi possível, verifique seu e-mail para confirmar a conta";
+    static final String MENSAGEM_EMAIL_JA_CADASTRADO_ATIVO = "este e-mail já possui uma conta ativa, faça login";
+    static final String MENSAGEM_EMAIL_JA_CADASTRADO_PENDENTE =
+            "este e-mail já possui um cadastro pendente de confirmação, confirme o token recebido ou solicite reenvio";
 
     private final AppUserRepository appUserRepository;
     private final TokenConfirmacaoCadastroRepository tokenRepository;
@@ -60,24 +66,16 @@ public class CadastrarContaService {
             appUserRepository.save(novaConta);
             appUserRepository.flush();
             gerarEEnviarToken(novaConta);
-        } else if (!existente.get().isAtiva()) {
-            // E-mail já existe, mas ainda pendente: mesmo comportamento do reenvio (seção 4).
-            reenviarTokenParaContaPendente(existente.get());
+            return new MensagemDto(MENSAGEM_GENERICA);
         }
-        // E-mail já existe e está ativo: nenhuma ação, nenhum e-mail — só a mensagem genérica.
 
-        return new MensagemDto(MENSAGEM_GENERICA);
-    }
-
-    private void reenviarTokenParaContaPendente(AppUser conta) {
-        // Mesmo cuidado de ordenação de flush do ReenviarTokenService: força o UPDATE de
-        // invalidação antes do INSERT do novo token, por causa do índice único parcial.
-        tokenRepository.findByUserIdAndConsumidoEmIsNullAndInvalidadoEmIsNull(conta.getId())
-                .ifPresent(tokenAberto -> {
-                    tokenAberto.invalidar();
-                    tokenRepository.saveAndFlush(tokenAberto);
-                });
-        gerarEEnviarToken(conta);
+        // E-mail já existe: erro específico e visível, nenhuma conta nova criada, nenhum
+        // e-mail enviado — reenvio de token só ocorre sob demanda explícita do usuário via
+        // POST /api/auth/reenviar-token (AC-02/AC-03 do ticket).
+        if (existente.get().isAtiva()) {
+            throw new EmailJaCadastradoAtivoException(MENSAGEM_EMAIL_JA_CADASTRADO_ATIVO);
+        }
+        throw new EmailJaCadastradoPendenteException(MENSAGEM_EMAIL_JA_CADASTRADO_PENDENTE);
     }
 
     private void gerarEEnviarToken(AppUser conta) {
